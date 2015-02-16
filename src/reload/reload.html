@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live-Reload</title>
+  <meta charset="UTF-8" />
+  <style>
+    body,html{
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+    }
+    .nav{
+      text-align: center;
+    }
+    .nav a{
+      padding: 10px;
+      color: rgba(53,53,53,.8);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="{{src}}" target="_blank">输出地址</a>
+    <input type="text" id="color" value="" />
+    <a id="JImg" href="javascript:void(0)">img</a>
+  </div>
+  <iframe width="100%" height="100%" frameborder="0" src="{{src}}"></iframe>
+  <script>
+    var img = document.getElementById('JImg');
+
+    var xmlhttp = !!window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+
+    var ifr = "{{src}}" + '?'// + "index.html" ;
+    var w = window.frames[0];
+    var source = new EventSource("http://{{host}}:8003/");
+    var links;
+    var link;
+
+    img.onclick = function(e){
+      var color = document.getElementById('color').value || '';
+      xmlhttp.open("POST","http://{{host}}:8004/",true);
+      xmlhttp.send(color);
+    };
+    source.onmessage = function(e){
+      // if(!links)links = w.document.getElementsByTagName('link');
+      // if(!link){
+      //   link = (function(){
+      //       for(var i = 0;i<links.length;i++){
+      //         if(/\/my\-min\.css/.test(links[i].href))return links[i];
+      //       }
+      //     })();
+      //   if(link)link.href = link.href + '?' + (+new Date());
+      // }
+      if(e.data === 'css'){
+        if(!links)links = w.document.getElementsByTagName('link');
+        for(var i = 0;i < links.length;i++){
+          links[i].href = links[i].href.split('?')[0] + '?' + (+new Date)*2
+        }
+      }else{
+        var lct = window.frames[0].location.href.split('/')
+        lct = lct[lct.length-1].split('?')[0]
+        ifr = ifr.replace(lct,e.data)
+        console.log(ifr)
+        window.frames[0].location.href = ifr + (+new Date());
+      }
+      // if(link)link.href = link.href.replace(/\?\d+/,function(m){
+      //   return '?' + (+new Date());
+      // });
+    };
+  </script>
+</body>
+</html>
