@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>{{title}}</title>
+<meta name="keywords" content="关键字,关键字,关键字" />
+<meta name="description" content="描述。……" />
+<meta name="Author" content="cenjinchao_gz {{designer}}">
+<!-- 专题reset-->
+<link rel="stylesheet" href="http://js.3conline.com/pcauto/common/css/zt_base.1.0.css" type="text/css" media="all" />
+<link href="./my.css" rel="stylesheet" type="text/css">
+<!--[if IE 6]><script>document.execCommand("BackgroundImageCache", false, true)</script><![endif]-->
+</head>
+<body>
+<!-- 广告头部 -->
+<script>if(!window._addIvyID) document.write("<scr"+"ipt src='http://www.pconline.com.cn/_hux_/online/default/index.js'><\/scr"+"ipt>");</script>
+<!-- 计数器 -->
+<span class="spanclass">
+	<script>
+		document.write("<img style=display:none src={{count}}&screen="+screen.width+"*"+screen.height+"&refer="+encodeURIComponent(document.referrer)+"&anticache="+new Date().getTime()+"&url="+encodeURIComponent(location.href)+"&from=cms >");
+	</script>
+</span>
+<!-- 通用头部 -->
+<script class="defer" src="{{header}}"></script>
+	{{body}}
+<!-- 通用尾部 -->
+<script class="defer" src="http://www.pconline.com.cn/global/footer/index.html"></script><!-- 广告尾部 -->
+<script>_submitIvyID();</script>
+</body>
+</html>

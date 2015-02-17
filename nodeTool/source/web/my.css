@@ -1,0 +1,40 @@
+/*reset*/
+/*footer*/
+body .g-footer{ background:none; margin-top:0; border-top:0;}
+body .g-footer .gft-links,
+body .g-footer .gft-links a{ color:#000;}
+body .g-footer .gft-copyRight,
+body .g-footer .gft-copyRight a{ color:#000;}
+/*layout*/
+.box-main{
+	width:1000px;
+	margin:0 auto;
+}
+/*module*/
+/*unit*/
+/*function*/
+.box-abs{
+	position:absolute;
+}
+.box-rlt{
+	position:relative;
+}
+.trs{
+	-webkit-transition: all .4s linear;
+	-o-transition: all .4s linear;
+	transition: all .4s linear;
+}
+/*skin*/
+/*status*/
+/*
+_background:none;
+_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true, sizingMethod=scale, src='./img/bt.png');
+.xxx{
+	z-index: 999;
+	background:rgba(0,0,0,.5);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#78000000,endColorstr=#78000000);
+}
+:root .xxx{
+	filter:progid:DXImageTransform.Microsoft.Gradient(startColorStr=#00000000,endColorStr=#00000000);
+}
+*/
