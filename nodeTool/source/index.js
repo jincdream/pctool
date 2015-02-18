@@ -5,6 +5,7 @@ var ph = require('path');
 var http = require('http');
 
 var _path = ph.resolve(__dirname,'./web/');
+//proxy
 var op={
 	host:'192.168.11.254',
 	port:8080,

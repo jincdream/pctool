@@ -6,7 +6,7 @@ var ip = (function () {
   return _host[1].address;
 })();
 /*
-  @Jin_C : http server ,support gbk and utf-8.
+  @Jin_C : http server,support gbk and utf-8.
   @param
    --> ip @number
    --> port @number

@@ -7,8 +7,9 @@ var iconv = require('../iconv-lite');
 var source = require('../source');
 
 var pn = module.exports = {};
-
-var _host = os.networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address;
+var _host = os.networkInterfaces().en0
+		? os.networkInterfaces().en0[1].address
+		: os.networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address;
 var drn = __dirname;
 
 pn.reload = require('../reload');
@@ -103,6 +104,7 @@ pn.start = function(dir,option){
 
 	self.index = index;
 	self.op = option;
+	self.proxy = option.proxy
 	self.modules = {};
 
 	self._IN_HTML = '';
