@@ -1,7 +1,18 @@
+var block = {}
 var fs = require('fs');
 var ph = require('path');
-var htmlBlock = require('./html.js');
-var readdirSync = require('../readdirSync');
+var readdirSync = require('../readdirSync')
+
+var htmlBlock = function(dataObj,reg){
+  dataObj.forEach(function(v,i,a){
+    var fileNmae = v.name
+    var str = v.data
+    block[fileNmae] = '<!-- ' + fileNmae + ' -->\r' + str + '\r<!-- ' + fileNmae + ' end -->'
+  })
+  return block
+  // block[fileNmae] = '<!-- ' + fileNmae + ' -->\r' + str + '\r<!-- ' +
+  // fileNmae + ' end -->'
+}
 var html = [],
   css = [],
   js = []

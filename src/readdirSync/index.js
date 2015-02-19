@@ -9,6 +9,9 @@ var _ignore = function(files,p){
   console.log(f,test,files);
   return test
 }
+/*
+  handle--> function(path)
+*/
 var readdirSync = function(dir,ignore,handle){
   var files = fs.readdirSync(dir);
   if (!files) return;

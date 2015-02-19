@@ -1,9 +1,16 @@
+/*
+  @Jin_C : A HTTP server use websocket to refresh .html
+*/
+
 var http = require('http');
-process.setMaxListeners(50);
-var _host = require('os').networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address;
+process.setMaxListeners(100);
+var os = require('os');
+var _host = os.networkInterfaces().en0
+		? os.networkInterfaces().en0[1].address
+		: os.networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address;
 var server = http.createServer(function(req,res){
-  req.setMaxListeners(50);
-  res.setMaxListeners(50);
+  req.setMaxListeners(100);
+  res.setMaxListeners(100);
   res.writeHead(200,{
     'Access-Control-Allow-Origin':'*',
     'Content-Type':'text/event-stream',
@@ -17,4 +24,4 @@ var server = http.createServer(function(req,res){
       res.write("data: " + data.data + "\n\n");
     }
   });
-}).listen(8003);
+}).listen(_host+ ':'+8003);

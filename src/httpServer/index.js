@@ -7,7 +7,6 @@ var server = exports = {};
 var dirName = ph.resolve()
 var gbk = {gbk:!1}
 var lst = new require('events').EventEmitter
-console.log(lst);
 server.http = function(req,res){
 		/**
 		* url obj
@@ -34,7 +33,7 @@ server.http = function(req,res){
 		server.render(path,req,res);
 	}
 };
-console.log(dirName);
+console.log(dirName,' -http srver');
 
 
 server.readGbk = require('../readGbk');
@@ -129,6 +128,14 @@ server.render = function(path,req,res){
 };
 
 // iconv.extendNodeEncodings();
+/*
+	@Jin_C : http server,support gbk and utf-8.
+	@param
+	--> ip @number
+	--> port @number
+	--> [true,false,'all'] @bullen or string
+	@return undefined
+*/
 module.exports = function(host,port,gbk){
 	server.gbk = gbk || 'utf-8'
 	require('http').createServer(server.http).listen(port,host || '127.0.0.1');

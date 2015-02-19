@@ -1,7 +1,13 @@
 var fs = require('fs');
 var path = require('path');
-var _host = require('os').networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address;
+var os = require('os');
+var _host = os.networkInterfaces().en0
+		? os.networkInterfaces().en0[1].address
+		: os.networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address;
 
+// var reload = module.exports = function(files,option){
+//
+// }
 
 
 module.exports = function(src,outName){
