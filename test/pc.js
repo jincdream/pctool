@@ -1,12 +1,23 @@
 "use strict"
 var fs = require('fs');
+var os = require('os');
 var ph = require('path');
-var reload = require('../src/reload');
 var child = require('child_process');
-var server = child.fork('../src/rServer');
-var httpServer = require('../src/httpServer');
-var readDirSync = require('../src/readdirSync');
-var changeBug = 0
+
+var thisPath = '/Users/cenjinchao/pctool/'
+var _path = function(path){
+  return ph.join(thisPath,path)
+}
+
+var reload = require(_path('./src/reload'));
+var server = child.fork(_path('./src/rServer'));
+var httpServer = require(_path('./src/httpServer'));
+var readModule = require(_path('./src/readModule'));
+var readDirSync = require(_path('./src/readdirSync'));
+
+var _host = os.networkInterfaces().en0
+    ? os.networkInterfaces().en0[1].address
+    : os.networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address
 var log = console.log
 
 Object.prototype.log = function(name){
@@ -16,7 +27,7 @@ Object.prototype.log = function(name){
 console.log = function(object,tag){
   var str = ''
   var _tag = ''
-  arguments
+
   if(Array.isArray(object)){
     _tag = 'isArray'
   }else{
@@ -32,22 +43,36 @@ console.log(ph.resolve(),'pc');
     -->{
       target: 'target dir src' ,
       [output: 'output dir name' || './output' ,]
-        --> !! --> option.target = ph.join(ph.resolve(),option.target)
+      mainHtml: ['./a.thml','./b.html'],
     }
 */
+
 var pcTool = function(option){
   var _self = this
+
+
   option.target = ph.join(ph.resolve(),option.target)
   option.log('target')
   for(var n in option){
     _self[n] = option[n]
   }
   _self.output = _self.path(option.output || './output')
+  _self.outputSrc = _self.path('./output')
+  _self.moduleSrc = _self.path('./module')
+
+  _self.change = _self.mainHtml[0].split('/')
+  _self.change = _self.change[_self.change.length-1]
+  _self.outHtml = []
+  _self.mainHtml.forEach(function(v,i,a){
+    _self.outHtml[i] = ph.join(_self.target,'./output/' + v)
+    _self.mainHtml[i] = _self.path(v)
+  })
   // console.log(option.target + ' -target');
 
   fs.exists(option.target,function(exs){
     if(!exs){
       _self.initDir(_self.watchDir)
+      _self.reload()
     }else{
       _self.watchDir()
     }
@@ -58,8 +83,6 @@ pcTool.prototype.path = function(src,target){
 }
 pcTool.prototype.initDir = function(next){
   var _self = this
-  _self.outputSrc = _self.path('./output')
-  _self.moduleSrc = _self.path('./module')
   fs.mkdirSync(_self.target)
   fs.mkdir(_self.outputSrc,function(err){
     if(err) throw new Error(err)
@@ -80,7 +103,7 @@ pcTool.prototype.watchDir = function(){
   var _self = this
   _self.readDirSync(function(path){
     var watcher = fs.watch(path)
-    var handle = ph.extname(path) === '.css' ? _self.cssFileHandle : _self.otherFileHandle
+    var handle = ph.extname(path) === '.css' ? _self.cssFileHandle : _self.htmlFileHandle
     var changeBug = 0
     watcher.setMaxListeners(150)
 
@@ -93,7 +116,7 @@ pcTool.prototype.watchDir = function(){
     });
   })
 }
-pcTool.prototype.otherFileHandle = function(path,eventN,file){
+pcTool.prototype.htmlFileHandle = function(path,eventN,file){
   var _self = this
   console.log( file +' is change:: event' + eventN)
   _self.watchHandle(path,eventN,file)
@@ -106,7 +129,35 @@ pcTool.prototype.cssFileHandle = function(path,eventN,file){
 }
 
 pcTool.prototype.watchHandle = function(path,eventN,file){
+  var _self = this
+  var reg = _self.reg || /\{\{(.*?)\}\}/g
+  var mod = readModule(_self.moduleSrc,_self.ignore)
+  _self.mainHtml.forEach(function(_file,i,a){
+    var data = fs.readFileSync(_file).toString()
+    var readMod = function(str,reg,content){
+      str = str.replace(reg,function(m,mod){
+        return readMod(content[mod] || '',reg,content)
+      })
+      return str
+    }
+    // data = data.replace(/\{\{(.*?)\}\}/g,function(m,mod){
+    //   console.log(mod,3);
+    //   return content[mod]
+    // })
+    data = readMod(data,reg,mod.html)
+    fs.writeFile(_self.outHtml[i],data,function(x){
+      if(x)console.log(x);
+    })
+  })
   console.log(path,eventN,file);
+}
+pcTool.prototype.out = function(){
+  var _self = this
+
+}
+pcTool.prototype.reload = function(path,eventN,file){
+  var _self = this
+  reload(_self.target)
 }
 module.exports = function(option){
   new pcTool(option)
@@ -121,6 +172,7 @@ module.exports = function(option){
     }
 */
 ;new pcTool({
-  target: './ttt/',
+  target: './ttt2/',
+  mainHtml: ['a.html'],
   ignore: ['ig']
 })

@@ -9,10 +9,9 @@ var _host = os.networkInterfaces().en0
 //
 // }
 
-
-module.exports = function(src,outName){
-	var reloadFile = path.join(outName,'../reload.html')
-	var iframeUrl = path.basename(outName)
+var reload = module.exports = function(target){
+	var reloadFile = path.join(target,'./reload.html')
+	var iframeUrl = target
 	var p = path.resolve(__dirname,'./reload.html');
 	var html = fs.readFileSync(p,'utf-8');
 	html = html.replace(/\{\{src\}\}/g,iframeUrl)
