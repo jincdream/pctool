@@ -20,7 +20,7 @@ var html = [],
 var handle = function(path) {
   var data = fs.readFileSync(path)
   var type = ph.extname(path)
-  var str = data.toString()
+  var str = !data ? '' : data.toString()
   var fileNmae = ph.basename(path).split('.')[0]
   var dataObj = {
     path: path,

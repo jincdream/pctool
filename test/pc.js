@@ -1,23 +1,26 @@
 "use strict"
+var port = 10086
+
 var fs = require('fs');
 var os = require('os');
 var ph = require('path');
 var child = require('child_process');
+var shell = child.exec;
 
 var thisPath = '/Users/cenjinchao/pctool/'
 var _path = function(path){
   return ph.join(thisPath,path)
 }
+global._host = os.networkInterfaces().en0
+    ? os.networkInterfaces().en0[1].address
+    : os.networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address
 
 var reload = require(_path('./src/reload'));
-var server = child.fork(_path('./src/rServer'));
+var rServer = child.fork(_path('./src/rServer'));
 var httpServer = require(_path('./src/httpServer'));
 var readModule = require(_path('./src/readModule'));
 var readDirSync = require(_path('./src/readdirSync'));
 
-var _host = os.networkInterfaces().en0
-    ? os.networkInterfaces().en0[1].address
-    : os.networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address
 var log = console.log
 
 Object.prototype.log = function(name){
@@ -51,6 +54,9 @@ var pcTool = function(option){
   var _self = this
 
 
+  _self.host = _host + ':' + port + '/'
+  _self.httpTarget = ph.join(_self.host,option.target)
+
   option.target = ph.join(ph.resolve(),option.target)
   option.log('target')
   for(var n in option){
@@ -67,6 +73,8 @@ var pcTool = function(option){
     _self.outHtml[i] = ph.join(_self.target,'./output/' + v)
     _self.mainHtml[i] = _self.path(v)
   })
+
+  _self.ignore.push('output')
   // console.log(option.target + ' -target');
 
   fs.exists(option.target,function(exs){
@@ -77,16 +85,22 @@ var pcTool = function(option){
       _self.watchDir()
     }
   })
+  shell('open -a Google\\ Chrome "'+_self.httpPath('./reload.html')+'"')
+  httpServer(_host,port,'all')
+  console.log(_host);
 }
 pcTool.prototype.path = function(src,target){
   return ph.join(target || this.target,src)
+}
+pcTool.prototype.httpPath = function(src,target){
+  return 'http://' + ph.join(target || this.httpTarget,src)
 }
 pcTool.prototype.initDir = function(next){
   var _self = this
   fs.mkdirSync(_self.target)
   fs.mkdir(_self.outputSrc,function(err){
     if(err) throw new Error(err)
-    fs.createWriteStream(_self.path('./a.html'))
+    fs.createWriteStream(_self.path('./index.html'))
 
     next && next.call(_self)
     // fs.mkdir()
@@ -97,7 +111,7 @@ pcTool.prototype.initDir = function(next){
 }
 pcTool.prototype.readDirSync = function(handle){
   var _self = this
-  readDirSync(_self.target,_self.ignore || [''],handle)
+  readDirSync(_self.target,_self.ignore || ['output'],handle)
 }
 pcTool.prototype.watchDir = function(){
   var _self = this
@@ -118,20 +132,20 @@ pcTool.prototype.watchDir = function(){
 }
 pcTool.prototype.htmlFileHandle = function(path,eventN,file){
   var _self = this
-  console.log( file +' is change:: event' + eventN)
+  console.log( file +' is change:: event ' + eventN)
   _self.watchHandle(path,eventN,file)
 }
 
 pcTool.prototype.cssFileHandle = function(path,eventN,file){
   var _self = this
-  console.log( file +' is change:: event' + eventN)
+  console.log( file +' is change:: event ' + eventN)
   _self.watchHandle(path,eventN,file)
 }
 
 pcTool.prototype.watchHandle = function(path,eventN,file){
   var _self = this
   var reg = _self.reg || /\{\{(.*?)\}\}/g
-  var mod = readModule(_self.moduleSrc,_self.ignore)
+  var mod = _self.readModule(_self.moduleSrc,_self.ignore)
   _self.mainHtml.forEach(function(_file,i,a){
     var data = fs.readFileSync(_file).toString()
     var readMod = function(str,reg,content){
@@ -151,13 +165,13 @@ pcTool.prototype.watchHandle = function(path,eventN,file){
   })
   console.log(path,eventN,file);
 }
+pcTool.prototype.readModule = readModule
 pcTool.prototype.out = function(){
   var _self = this
-
 }
 pcTool.prototype.reload = function(path,eventN,file){
   var _self = this
-  reload(_self.target)
+  reload(_self.target,_self.httpPath('./output/index.html'))
 }
 module.exports = function(option){
   new pcTool(option)
@@ -173,6 +187,6 @@ module.exports = function(option){
 */
 ;new pcTool({
   target: './ttt2/',
-  mainHtml: ['a.html'],
+  mainHtml: ['index.html'],
   ignore: ['ig']
 })

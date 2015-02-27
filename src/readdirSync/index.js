@@ -14,7 +14,7 @@ var _ignore = function(files,p){
 */
 var readdirSync = function(dir,ignore,handle){
   var files = fs.readdirSync(dir);
-  if (!files) return;
+  if (files.length === 0 || !files) return;
   var i = 0,ln = files.length;
   for (; i < ln; i++) {
     var p = path.resolve(dir, files[i]);
