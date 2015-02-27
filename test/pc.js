@@ -70,9 +70,10 @@ var pcTool = function(option){
   _self.change = _self.mainHtml[0].split('/')
   _self.change = _self.change[_self.change.length-1]
   _self.outHtml = []
+  _self._mainHtml = []
   _self.mainHtml.forEach(function(v,i,a){
     _self.outHtml[i] = ph.join(_self.target,'./output/' + v)
-    _self.mainHtml[i] = _self.path(v)
+    _self._mainHtml[i] = _self.path(v)
   })
 
   _self.ignore.push('output')
@@ -122,7 +123,6 @@ pcTool.prototype.watchDir = function(){
     watcher.setMaxListeners(150)
 
     watcher.on('change',function(eventN,name){
-      console.log(changeBug,'bugggg');
       (++changeBug) > 0 && (changeBug = 0,(handle.call(_self,path,eventN,name)))
     });
 
@@ -134,8 +134,9 @@ pcTool.prototype.watchDir = function(){
 pcTool.prototype.htmlFileHandle = function(path,eventN,file){
   var _self = this
   console.log( file +' is change:: event ' + eventN)
+  _self.log('mainHtml')
+  if(_self.mainHtml.indexOf(file))_self.change = file
   _self.watchHandle(path,eventN,file)
-  console.log(file,'cgfffffff');
   _self.send()
 }
 
@@ -149,7 +150,7 @@ pcTool.prototype.watchHandle = function(path,eventN,file){
   var _self = this
   var reg = _self.reg || /\{\{(.*?)\}\}/g
   var mod = _self.readModule(_self.moduleSrc,_self.ignore)
-  _self.mainHtml.forEach(function(_file,i,a){
+  _self._mainHtml.forEach(function(_file,i,a){
     var data = fs.readFileSync(_file).toString()
     var readMod = function(str,reg,content){
       str = str.replace(reg,function(m,mod){
@@ -194,6 +195,6 @@ module.exports = function(option){
 */
 ;new pcTool({
   target: './ttt2/',
-  mainHtml: ['index.html'],
+  mainHtml: ['index.html','index0.html','index1.html'],
   ignore: ['ig']
 })

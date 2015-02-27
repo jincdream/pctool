@@ -1,6 +1,7 @@
 /*
   @Jin_C : A HTTP server use websocket to refresh .html
 */
+	process.setMaxListeners(100);
 	var os = require('os');
 	var host = os.networkInterfaces().en0
 		? os.networkInterfaces().en0[1].address
