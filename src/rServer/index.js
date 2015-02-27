@@ -17,6 +17,7 @@
 			"Connection":"keep-alive"
 		});
 		process.on('message',function(data){
+			console.log(data);
 			if(data.data === 'css'){
 				res.write("data: " + 'css' + "\n\n");
 			}else{

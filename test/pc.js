@@ -47,6 +47,7 @@ console.log(ph.resolve(),'pc');
       target: 'target dir src' ,
       [output: 'output dir name' || './output' ,]
       mainHtml: ['./a.thml','./b.html'],
+      [reg: /\{\{(.*?)\}\}/g ,] -> ps: module reg like {{module}}
     }
 */
 
@@ -87,7 +88,6 @@ var pcTool = function(option){
   })
   shell('open -a Google\\ Chrome "'+_self.httpPath('./reload.html')+'"')
   httpServer(_host,port,'all')
-  console.log(_host);
 }
 pcTool.prototype.path = function(src,target){
   return ph.join(target || this.target,src)
@@ -122,7 +122,8 @@ pcTool.prototype.watchDir = function(){
     watcher.setMaxListeners(150)
 
     watcher.on('change',function(eventN,name){
-      (++changeBug) >= 2 && (changeBug = 0,(handle.call(_self,path,eventN,name)))
+      console.log(changeBug,'bugggg');
+      (++changeBug) > 0 && (changeBug = 0,(handle.call(_self,path,eventN,name)))
     });
 
     watcher.on('error',function(e,n){
@@ -134,6 +135,8 @@ pcTool.prototype.htmlFileHandle = function(path,eventN,file){
   var _self = this
   console.log( file +' is change:: event ' + eventN)
   _self.watchHandle(path,eventN,file)
+  console.log(file,'cgfffffff');
+  _self.send()
 }
 
 pcTool.prototype.cssFileHandle = function(path,eventN,file){
@@ -171,11 +174,15 @@ pcTool.prototype.out = function(){
 }
 pcTool.prototype.reload = function(path,eventN,file){
   var _self = this
-  reload(_self.target,_self.httpPath('./output/index.html'))
+  reload(_self.target,_self.httpPath('./output/'+ _self.change))
+}
+pcTool.prototype.send = function(){
+  rServer.send({data:this.change});
 }
 module.exports = function(option){
   new pcTool(option)
 }
+
 /*
   @Jin_C :
   @Param : option @Object
