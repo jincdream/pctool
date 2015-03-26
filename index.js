@@ -95,5 +95,5 @@ var readDir = function(dir) {
 };
 block()
 readDir(_p)
-reload(ip + ':10086',output[0])
+reload(ip,ip + ':10086',output[0])
 httpServer()

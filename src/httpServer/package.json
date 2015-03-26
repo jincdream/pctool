@@ -1,0 +1,19 @@
+{
+  "name": "httpServer",
+  "version": "1.0.0",
+  "description": "jinc's http server",
+  "main": "index.js",
+  "Dependencies": {
+    "iconv-lite":"0.4.x",
+    "mime": "1.3.x"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "http",
+    "server"
+  ],
+  "author": "jinc",
+  "license": "MIT"
+}

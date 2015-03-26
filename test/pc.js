@@ -48,6 +48,7 @@ console.log(ph.resolve(),'pc');
       [output: 'output dir name' || './output' ,]
       mainHtml: ['./a.thml','./b.html'],
       [reg: /\{\{(.*?)\}\}/g ,] -> ps: module reg like {{module}}
+      type: 'zt' || 'xm' || 'wap'
     }
 */
 
@@ -136,17 +137,17 @@ pcTool.prototype.htmlFileHandle = function(path,eventN,file){
   console.log( file +' is change:: event ' + eventN)
   _self.log('mainHtml')
   if(_self.mainHtml.indexOf(file))_self.change = file
-  _self.watchHandle(path,eventN,file)
+  _self.htmlWatchHandle(path,eventN,file)
   _self.send()
 }
 
 pcTool.prototype.cssFileHandle = function(path,eventN,file){
   var _self = this
   console.log( file +' is change:: event ' + eventN)
-  _self.watchHandle(path,eventN,file)
+  _self.cssWatchHandle(path,eventN,file)
 }
 
-pcTool.prototype.watchHandle = function(path,eventN,file){
+pcTool.prototype.htmlWatchHandle = function(path,eventN,file){
   var _self = this
   var reg = _self.reg || /\{\{(.*?)\}\}/g
   var mod = _self.readModule(_self.moduleSrc,_self.ignore)
@@ -196,5 +197,6 @@ module.exports = function(option){
 ;new pcTool({
   target: './ttt2/',
   mainHtml: ['index.html','index0.html','index1.html'],
-  ignore: ['ig']
+  ignore: ['ig'],
+  type: 'zt'
 })

@@ -3,7 +3,7 @@
 */
 	process.setMaxListeners(100);
 	var os = require('os');
-	var host = os.networkInterfaces().en0
+	var host = process.platform !== 'win32'
 		? os.networkInterfaces().en0[1].address
 		: os.networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address
 
