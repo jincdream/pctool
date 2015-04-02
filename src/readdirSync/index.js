@@ -25,6 +25,7 @@ var readdirSync = function(dir,ignore,handle){
       if(_ignore(ignore,p))continue;
       readdirSync(p,ignore,handle);
     } else {
+      if(_ignore(ignore,p,'file'))continue;
       handle(p);
     }
   }

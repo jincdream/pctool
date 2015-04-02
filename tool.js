@@ -4,5 +4,5 @@ pcNode.start('./test2',{
   header: '',
   dsigner: '',
   web: 'qiche',
-  host: '92.168.1.108:10086/'
+  host: '192.168.1.108:10086/'
 })

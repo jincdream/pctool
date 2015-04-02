@@ -4,10 +4,12 @@ var url = require('url');
 var mime = require('mime');
 var iconv = require('iconv-lite');
 var server = exports = {};
-var dirName = ph.resolve()
+var dirName = global.thisDir || ph.resolve()
 var gbk = {gbk:!1}
 var lst = new require('events').EventEmitter
 server.http = function(req,res){
+	server.req = req;
+	server.res = res;
 		/**
 		* url obj
 		*
@@ -42,7 +44,7 @@ server.checkGbk = function(string){
 	return string.indexOf('�') >= 0
 }
 
-server.render = function(path,req,res){
+server.render = function(path){
 	var startT = +new Date
 	var type = mime.lookup(path) || 'text/html';
 	var oType = {
@@ -52,6 +54,9 @@ server.render = function(path,req,res){
 	var fileName = ph.join(dirName,path)
 	var read,write
 	var _readed = !0
+	var req = this.req;
+	var res = this.res;
+
 	read = fs.createReadStream(fileName)
 	write = fs.createWriteStream('a')
 

@@ -7,10 +7,11 @@ var ph = require('path');
 var child = require('child_process');
 var shell = child.exec;
 
-var thisPath = '/Users/cenjinchao/pctool/'
+var thisPath = global.thisDir = '/Users/cenjinchao/pctool/'
 var _path = function(path){
   return ph.join(thisPath,path)
 }
+process.cwd(thisPath)
 global._host = os.networkInterfaces().en0
     ? os.networkInterfaces().en0[1].address
     : os.networkInterfaces()['\u672C\u5730\u8FDE\u63A5'][1].address
@@ -45,8 +46,8 @@ console.log(ph.resolve(),'pc');
   @Param : option @Object
     -->{
       target: 'target dir src' ,
-      [output: 'output dir name' || './output' ,]
-      mainHtml: ['./a.thml','./b.html'],
+      [output: 'output dir name' || 'target/output' ,]
+      [mainHtml: ['./a.thml','./b.html'] || ['./index.html'],]
       [reg: /\{\{(.*?)\}\}/g ,] -> ps: module reg like {{module}}
       type: 'zt' || 'xm' || 'wap'
     }
@@ -58,8 +59,8 @@ var pcTool = function(option){
 
   _self.host = _host + ':' + port + '/'
   _self.httpTarget = ph.join(_self.host,option.target)
-
-  option.target = ph.join(ph.resolve(),option.target)
+  _self.setMain = option.mainHtml
+  option.target = ph.join(thisPath,option.target)
   option.log('target')
   for(var n in option){
     _self[n] = option[n]
@@ -72,24 +73,44 @@ var pcTool = function(option){
   _self.change = _self.change[_self.change.length-1]
   _self.outHtml = []
   _self._mainHtml = []
+  _self.mainHtml = option.mainHtml || ['index.html']
   _self.mainHtml.forEach(function(v,i,a){
     _self.outHtml[i] = ph.join(_self.target,'./output/' + v)
     _self._mainHtml[i] = _self.path(v)
   })
+  try{
+    _self.initHtml = fs.readFileSync(_self.path('./index.html'))
+  }catch(err){
+    console.log(err);
+  }
+  if(!_self.initHtml && _self.type === 'zt'){
+    _self.initHtml = '!';
+  }else if(!_self.initHtml){
+    _self.initHtml = ''
+  }
 
-  _self.ignore.push('output')
-  // console.log(option.target + ' -target');
-
-  fs.exists(option.target,function(exs){
-    if(!exs){
-      _self.initDir(_self.watchDir)
-      _self.reload()
-    }else{
-      _self.watchDir()
+  _self.ignore = (function(){
+    var ig = ['output','reload.html']
+    if(_self.ignore === void 0)return ig
+    else {
+      [].push.apply(_self.ignore,ig)
+      return _self.ignore
     }
+  })()
+  // console.log(option.target + ' -target');
+  var _next = function(){
+    _self.watchDir()
+    httpServer(_host,port,'all')
+    shell('open -a Google\\ Chrome "'+_self.httpPath('./reload.html')+'"')
+  }
+  fs.exists(option.target,function(exs){
+    !exs && _self.initDir(function(){
+      _self.reload()
+      _next()
+    })
+    exs && _next()
   })
-  shell('open -a Google\\ Chrome "'+_self.httpPath('./reload.html')+'"')
-  httpServer(_host,port,'all')
+
 }
 pcTool.prototype.path = function(src,target){
   return ph.join(target || this.target,src)
@@ -99,32 +120,44 @@ pcTool.prototype.httpPath = function(src,target){
 }
 pcTool.prototype.initDir = function(next){
   var _self = this
+  var _next = function(err){
+    if(err) throw new Error(err + 'line 116')
+    next && next.call(_self)
+  }
   fs.mkdirSync(_self.target)
   fs.mkdir(_self.outputSrc,function(err){
     if(err) throw new Error(err)
-    fs.createWriteStream(_self.path('./index.html'))
+    fs.writeFileSync(_self.path('./index.html'),_self.mainHtml)
+    fs.writeFileSync(_self.path('./output/index.html'),_self.mainHtml)
+    _next()
 
-    next && next.call(_self)
     // fs.mkdir()
   })
   fs.mkdir(_self.moduleSrc,function(err){
-    if(err) throw new Error(err)
+    if(err) throw new Error(err + 'line 114')
   })
 }
 pcTool.prototype.readDirSync = function(handle){
   var _self = this
-  readDirSync(_self.target,_self.ignore || ['output'],handle)
+  readDirSync(_self.target,_self.ignore,handle)
 }
+var changeBug = 0
+
 pcTool.prototype.watchDir = function(){
   var _self = this
+
+
   _self.readDirSync(function(path){
+    var _changeMax = 0
     var watcher = fs.watch(path)
     var handle = ph.extname(path) === '.css' ? _self.cssFileHandle : _self.htmlFileHandle
-    var changeBug = 0
-    watcher.setMaxListeners(150)
-
+    watcher.setMaxListeners(100)
     watcher.on('change',function(eventN,name){
-      (++changeBug) > 0 && (changeBug = 0,(handle.call(_self,path,eventN,name)))
+      _changeMax++
+      if(_changeMax === 2){
+        handle.call(_self,path,eventN,name)
+        _changeMax = 0
+      }
     });
 
     watcher.on('error',function(e,n){
@@ -138,7 +171,6 @@ pcTool.prototype.htmlFileHandle = function(path,eventN,file){
   _self.log('mainHtml')
   if(_self.mainHtml.indexOf(file))_self.change = file
   _self.htmlWatchHandle(path,eventN,file)
-  _self.send()
 }
 
 pcTool.prototype.cssFileHandle = function(path,eventN,file){
@@ -168,6 +200,7 @@ pcTool.prototype.htmlWatchHandle = function(path,eventN,file){
       if(x)console.log(x);
     })
   })
+  _self.send()
   console.log(path,eventN,file);
 }
 pcTool.prototype.readModule = readModule
@@ -176,7 +209,7 @@ pcTool.prototype.out = function(){
 }
 pcTool.prototype.reload = function(path,eventN,file){
   var _self = this
-  reload(_self.target,_self.httpPath('./output/'+ _self.change))
+  reload(global._host,_self.target,_self.httpPath('./output/'+ _self.change))
 }
 pcTool.prototype.send = function(){
   rServer.send({data:this.change});
@@ -196,7 +229,7 @@ module.exports = function(option){
 */
 ;new pcTool({
   target: './ttt2/',
-  mainHtml: ['index.html','index0.html','index1.html'],
+  mainHtml: ['index.html'],
   ignore: ['ig'],
   type: 'zt'
 })
